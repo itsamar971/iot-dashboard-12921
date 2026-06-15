@@ -90,15 +90,20 @@ export default function PollutantTrendsCard({ className, historicalData }: Pollu
 
   const activePollutant = pollutants.find((p) => p.id === activeTab) || pollutants[0]
   
+  // Sort oldest→newest so chart flows left→right naturally
+  // currentValue = last item = newest reading (matches dashboard card)
   const trendData = (historicalData && historicalData.length > 0)
-    ? historicalData.map((reading: any) => ({
-        day: new Date(reading.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        value: Number(reading[activeTab] !== undefined ? reading[activeTab] : 0),
-        threshold: activePollutant.threshold,
-      })).reverse()
+    ? [...historicalData]
+        .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        .map((reading: any) => ({
+          day: new Date(reading.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          value: Number(reading[activeTab] !== undefined ? reading[activeTab] : 0),
+          threshold: activePollutant.threshold,
+        }))
     : [];
 
   const hasData = trendData.length > 0;
+  // Last item = newest reading = matches the live card value
   const currentValue = hasData ? trendData[trendData.length - 1].value : 0;
   const previousValue = hasData && trendData.length > 1 ? trendData[trendData.length - 2].value : currentValue;
   const change = currentValue - previousValue;

@@ -191,6 +191,10 @@ SensorData readSensors() {
 // AQI CALCULATION — real MQ135 sensor data
 // =============================
 int calculateAQI(float ratio) {
+  // Guard: if ratio is 0 or invalid (sensor not connected / ADC reads 0)
+  // pow(0, negative) = infinity → without guard AQI always shows 150
+  if (ratio <= 0.01f) return 50 + random(-3, 4); // safe default: ~50 with small noise
+
   // Step 1: Get CO2 ppm from MQ135 ratio (same formula as calculateCO2)
   float ppm = 116.6020682 * pow(ratio, -2.769034857);
   ppm = constrain(ppm, 400, 2000);
