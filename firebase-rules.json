@@ -1,0 +1,15 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "sensors": {
+      ".indexOn": ["deviceId", "timestamp"],
+      "$deviceId": {
+        ".indexOn": ["timestamp"]
+      }
+    },
+    "devices": {
+      ".indexOn": ["deviceId", "lastSeen"]
+    }
+  }
+}
