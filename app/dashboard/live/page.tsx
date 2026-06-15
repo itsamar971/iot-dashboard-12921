@@ -20,7 +20,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 export default function LiveDashboard() {
   const [selectedDevice, setSelectedDevice] = useState<string>('');
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+  const [refreshInterval, setRefreshInterval] = useState(120000); // 2 minutes
 
   // Fetch devices
   const { devices, loading: devicesLoading, error: devicesError } = useDevices();
@@ -176,7 +176,7 @@ export default function LiveDashboard() {
               {currentReading.aqi}
             </div>
             <p className="text-xs text-gray-500">
-              {getAQILabel(currentReading.aqi)}
+              {getAQILabel(currentReading.aqi).label}
             </p>
           </Card>
 

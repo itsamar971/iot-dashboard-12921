@@ -25,22 +25,22 @@ export default function HomePage() {
   }, [devices, selectedDevice])
 
   // Fetch current sensor data
-  const { data, isConnected } = useSensorData({
+  const { data: sensorData, isConnected } = useSensorData({
     deviceId: selectedDevice,
-    refreshInterval: 10000,
+    refreshInterval: 120000,
     autoRefresh: true
   })
 
   // Fetch historical data for trends
   const { data: historicalRaw } = useSensorData({
     deviceId: selectedDevice,
-    refreshInterval: 10000,
+    refreshInterval: 120000,
     autoRefresh: true,
     historical: true,
     enabled: isConnected
   })
 
-  const currentReading = data && !Array.isArray(data) ? data : (Array.isArray(data) && data.length > 0 ? data[0] : null)
+  const currentReading = (sensorData && !Array.isArray(sensorData) ? sensorData : (Array.isArray(sensorData) && sensorData.length > 0 ? sensorData[0] : null))!
 
   const aqiCardColor = currentReading ? getAQIColor(currentReading.aqi) : "green"
   const aqiCardBorderClass =
@@ -109,7 +109,7 @@ export default function HomePage() {
       </div>
 
       {/* Main Content Area */}
-      {!isConnected || !currentReading ? (
+      {!isConnected || !sensorData ? (
         <div className="flex flex-col items-center justify-center p-12 text-center bg-muted/10 rounded-lg border border-dashed min-h-[400px]">
           <div className="flex items-center space-x-2 text-gray-500 mb-2">
             <span className="text-2xl">⚪</span>

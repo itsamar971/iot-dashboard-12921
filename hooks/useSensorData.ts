@@ -26,7 +26,7 @@ interface UseSensorDataOptions {
 
 export function useSensorData({ 
   deviceId, 
-  refreshInterval = 10000, 
+  refreshInterval = 120000, 
   autoRefresh = true,
   historical = false,
   enabled = true
@@ -64,12 +64,44 @@ export function useSensorData({
       const result = await response.json();
 
       if (result.success && result.data) {
-        setData(result.data);
-        setIsConnected(true);
-        setLastUpdated(new Date());
-        setError(null);
+        let latestReading = null;
+        if (Array.isArray(result.data)) {
+          if (result.data.length > 0) {
+            latestReading = result.data.reduce((latest: any, current: any) => {
+              if (!latest || !latest.timestamp) return current;
+              if (!current || !current.timestamp) return latest;
+              return new Date(current.timestamp).getTime() > new Date(latest.timestamp).getTime()
+                ? current
+                : latest;
+            }, null);
+          }
+        } else {
+          latestReading = result.data;
+        }
+
+        if (!latestReading || !latestReading.timestamp) {
+          setData(null);
+          setIsConnected(false);
+          setError(null);
+        } else {
+          const timestamp = latestReading.timestamp;
+          const timeDiff = Date.now() - new Date(timestamp).getTime();
+
+          if (isNaN(timeDiff) || timeDiff > 120000) {
+            setData(null);
+            setIsConnected(false);
+            setError(null);
+          } else {
+            setData(result.data);
+            setIsConnected(true);
+            setLastUpdated(new Date());
+            setError(null);
+          }
+        }
       } else {
-        throw new Error(result.error || 'No data received from API');
+        setData(null);
+        setIsConnected(false);
+        setError('No data received from API');
       }
     } catch (err) {
       console.error('Error fetching sensor data:', err);
@@ -96,6 +128,44 @@ export function useSensorData({
     const interval = setInterval(fetchData, refreshInterval);
     return () => clearInterval(interval);
   }, [fetchData, refreshInterval, autoRefresh, enabled]);
+
+  // Dynamic offline detection checking the current loaded data timestamp
+  useEffect(() => {
+    if (!data || !isConnected) return;
+
+    const checkStaleness = () => {
+      let latestReading = null;
+      if (Array.isArray(data)) {
+        if (data.length > 0) {
+          latestReading = data.reduce((latest: any, current: any) => {
+            if (!latest || !latest.timestamp) return current;
+            if (!current || !current.timestamp) return latest;
+            return new Date(current.timestamp).getTime() > new Date(latest.timestamp).getTime()
+              ? current
+              : latest;
+          }, null);
+        }
+      } else {
+        latestReading = data;
+      }
+
+      if (!latestReading || !latestReading.timestamp) {
+        setData(null);
+        setIsConnected(false);
+        return;
+      }
+
+      const timeDiff = Date.now() - new Date(latestReading.timestamp).getTime();
+      if (isNaN(timeDiff) || timeDiff > 120000) {
+        setData(null);
+        setIsConnected(false);
+      }
+    };
+
+    checkStaleness();
+    const timer = setInterval(checkStaleness, 5000);
+    return () => clearInterval(timer);
+  }, [data, isConnected]);
 
   return {
     data,

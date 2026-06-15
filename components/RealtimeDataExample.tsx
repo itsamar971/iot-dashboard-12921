@@ -24,9 +24,9 @@ interface RealtimeDataProps {
 
 export default function RealtimeDataExample({ 
   deviceId = "Esp_353", 
-  refreshInterval = 10000 
+  refreshInterval = 120000 
 }: RealtimeDataProps) {
-  const { data, loading, error, isConnected, lastUpdated, refresh } = useSensorData({
+  const { data: sensorData, loading, error, isConnected, lastUpdated, refresh } = useSensorData({
     deviceId,
     refreshInterval,
     autoRefresh: true
@@ -57,7 +57,7 @@ export default function RealtimeDataExample({
     return () => clearInterval(interval);
   }, [lastUpdated]);
 
-  if (!isConnected || !data || error) {
+  if (!isConnected || !sensorData) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-muted/10 rounded-lg border border-dashed min-h-[300px]">
         <div className="flex items-center space-x-2 text-gray-500 mb-2">
@@ -72,7 +72,7 @@ export default function RealtimeDataExample({
   }
 
   // Handle both single reading and array of readings
-  const currentReading = Array.isArray(data) ? data[0] : data;
+  const currentReading = Array.isArray(sensorData) ? sensorData[0] : sensorData;
   const aqiData = getAQILabel(currentReading.aqi);
 
   return (
