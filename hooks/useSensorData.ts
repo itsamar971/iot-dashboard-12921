@@ -31,6 +31,7 @@ export function useSensorData({
   historical = false,
   enabled = true
 }: UseSensorDataOptions) {
+  // historical flag is passed down to skip staleness wiping
   const [data, setData] = useState<SensorReading | SensorReading[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,8 +130,10 @@ export function useSensorData({
     return () => clearInterval(interval);
   }, [fetchData, refreshInterval, autoRefresh, enabled]);
 
-  // Dynamic offline detection checking the current loaded data timestamp
+  // Staleness check — only for LIVE data, never for historical.
+  // Historical readings are intentionally old; wiping them would clear the chart on disconnect.
   useEffect(() => {
+    if (historical) return; // ← skip for historical data — preserve all old dots
     if (!data || !isConnected) return;
 
     const checkStaleness = () => {
@@ -165,7 +168,7 @@ export function useSensorData({
     checkStaleness();
     const timer = setInterval(checkStaleness, 5000);
     return () => clearInterval(timer);
-  }, [data, isConnected]);
+  }, [data, isConnected, historical]);
 
   return {
     data,

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts"
+import { Line, LineChart, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts"
 import { TrendingDown, TrendingUp, Info } from "lucide-react"
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { getPollutantColor } from "@/lib/utils"
@@ -106,6 +106,12 @@ export default function PollutantTrendsCard({ className, historicalData }: Pollu
   const isSafe = currentValue <= activePollutant.threshold;
   const color = getPollutantColor(currentValue, activePollutant.threshold * 0.7, activePollutant.threshold);
 
+  // Scrollable chart: each data point gets 55px; scroll kicks in beyond 20 visible points
+  const PX_PER_POINT = 55;
+  const MIN_CHART_WIDTH = 500;
+  const chartWidth = Math.max(MIN_CHART_WIDTH, trendData.length * PX_PER_POINT);
+  const isScrollable = trendData.length > 20;
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const dataPoint = payload[0].payload
@@ -192,35 +198,49 @@ export default function PollutantTrendsCard({ className, historicalData }: Pollu
                     <span>Threshold: {activePollutant.threshold} {pollutant.unit}</span>
                   </div>
                 </div>
-                <div className="md:w-2/3 h-[300px]">
+                <div className="md:w-2/3">
                   {hasData ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trendData}>
-                        <XAxis dataKey="day" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickMargin={10} />
-                        <YAxis domain={[0, "auto"]} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickMargin={10} width={40} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <ReferenceLine
-                          y={activePollutant.threshold}
-                          stroke={theme === "dark" ? "hsl(0, 70%, 40%)" : "hsl(0, 100%, 70%)"}
-                          strokeDasharray="3 3"
-                          label={{
-                            value: "Threshold",
-                            position: "insideTopRight",
-                            fill: theme === "dark" ? "hsl(0, 70%, 40%)" : "hsl(0, 100%, 70%)",
-                            fontSize: 12,
-                          }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke={pollutant.color}
-                          strokeWidth={2}
-                          dot={{ r: 4, fill: pollutant.color, strokeWidth: 0 }}
-                          activeDot={{ r: 6, fill: pollutant.color, strokeWidth: 0 }}
-                          animationDuration={1500}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    <div className="relative">
+                      {/* Scroll hint badge */}
+                      {isScrollable && (
+                        <div className="absolute top-0 right-0 z-10 text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground font-space-grotesk flex items-center gap-1">
+                          <span>↔ scroll</span>
+                        </div>
+                      )}
+                      {/* Scrollable wrapper */}
+                      <div
+                        className="overflow-x-auto"
+                        style={{ WebkitOverflowScrolling: 'touch' }}
+                      >
+                        <div style={{ width: `${chartWidth}px`, height: '300px' }}>
+                          <LineChart width={chartWidth} height={300} data={trendData}>
+                            <XAxis dataKey="day" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickMargin={10} />
+                            <YAxis domain={[0, "auto"]} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickMargin={10} width={40} />
+                            <Tooltip content={<CustomTooltip />} />
+                            <ReferenceLine
+                              y={activePollutant.threshold}
+                              stroke={theme === "dark" ? "hsl(0, 70%, 40%)" : "hsl(0, 100%, 70%)"}
+                              strokeDasharray="3 3"
+                              label={{
+                                value: "Threshold",
+                                position: "insideTopRight",
+                                fill: theme === "dark" ? "hsl(0, 70%, 40%)" : "hsl(0, 100%, 70%)",
+                                fontSize: 12,
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke={pollutant.color}
+                              strokeWidth={2}
+                              dot={{ r: 4, fill: pollutant.color, strokeWidth: 0 }}
+                              activeDot={{ r: 6, fill: pollutant.color, strokeWidth: 0 }}
+                              animationDuration={1500}
+                            />
+                          </LineChart>
+                        </div>
+                      </div>
+                    </div>
                   ) : (
                     <div className="h-full w-full flex items-center justify-center border border-dashed rounded-lg bg-muted/20 text-muted-foreground text-sm font-space-grotesk">
                       No historical trend data available yet
