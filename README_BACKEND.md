@@ -62,7 +62,7 @@ Fetch current or historical sensor data.
 
 **Example:**
 ```bash
-curl "http://localhost:3000/api/sensors?deviceId=esp32_001&historical=true"
+curl "http://localhost:3000/api/sensors?deviceId=Esp_353&historical=true"
 ```
 
 #### POST `/api/sensors`
@@ -94,7 +94,7 @@ Register a new IoT device.
 **Request Body:**
 ```json
 {
-  "id": "esp32_001",
+  "id": "Esp_353",
   "name": "Living Room Monitor",
   "type": "ESP32-WROOM-32",
   "location": "Living Room",
@@ -249,7 +249,7 @@ import { useSensorData, useDevices } from '@/hooks/useSensorData';
 
 function MyComponent() {
   const { data, loading, error, isConnected } = useSensorData({
-    deviceId: 'esp32_001',
+    deviceId: 'Esp_353',
     refreshInterval: 30000,
     autoRefresh: true
   });

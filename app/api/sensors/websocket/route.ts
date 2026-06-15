@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       data,
       type: 'realtime',
       source: 'mock',
-      deviceId: deviceId || 'esp32_001'
+      deviceId: deviceId || 'Esp_353'
     });
 
   } catch (error) {

@@ -153,7 +153,7 @@ const char* firebase_host = "your_project-default-rtdb.firebaseio.com";
 The ESP32 sends data in this JSON format:
 ```json
 {
-  "deviceId": "esp32_001",
+  "deviceId": "Esp_353",
   "aqi": 75,
   "temperature": 24.5,
   "humidity": 45,

@@ -60,7 +60,7 @@ export default function LiveDashboard() {
   useEffect(() => {
     if (devicesError && !selectedDevice) {
       // Use a known device ID from the webview logs
-      setSelectedDevice('esp32_001');
+      setSelectedDevice('Esp_353');
     }
   }, [devicesError, selectedDevice]);
 

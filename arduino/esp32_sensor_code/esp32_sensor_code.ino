@@ -36,7 +36,7 @@ const char* dashboardAPI = "https://iotaqi353.netlify.app/api/sensors";
 DHT dht(DHT_PIN, DHT_TYPE);
 
 // Device Configuration
-const String DEVICE_ID = "esp32_001";
+const String DEVICE_ID = "Esp_353";
 const String DEVICE_LOCATION = "Living Room";
 
 // Calibration values (adjust based on your environment)

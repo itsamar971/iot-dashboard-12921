@@ -87,10 +87,10 @@ Your data will be organized like this:
 ```
 your-project-id-default-rtdb/
 ├── sensors/
-│   ├── esp32_001/
+│   ├── Esp_353/
 │   │   ├── 1641234567890/
 │   │   │   ├── id: "sensor_1641234567890"
-│   │   │   ├── deviceId: "esp32_001"
+│   │   │   ├── deviceId: "Esp_353"
 │   │   │   ├── timestamp: "2025-01-07T12:00:00Z"
 │   │   │   ├── aqi: 75
 │   │   │   ├── co2: 650
@@ -103,7 +103,7 @@ your-project-id-default-rtdb/
 │   └── esp32_002/
 │       └── ... (other devices)
 └── devices/
-    ├── esp32_001/
+    ├── Esp_353/
     │   ├── name: "Living Room Monitor"
     │   ├── type: "ESP32-WROOM-32"
     │   ├── location: "Living Room"
